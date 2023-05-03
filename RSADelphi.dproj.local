@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+  <Transactions>
+    <Transaction>2023/05/03 22:59:13.885,=C:\Users\alamo\OneDrive\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>2023/05/03 23:10:15.106,X:\1Second_Year\Theory of the Information\rsa-delphi\Unit1.dfm=C:\Users\alamo\OneDrive\Documents\Embarcadero\Studio\Projects\Unit1.dfm</Transaction>
+    <Transaction>2023/05/03 23:10:15.106,X:\1Second_Year\Theory of the Information\rsa-delphi\Unit1.pas=C:\Users\alamo\OneDrive\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>2023/05/03 23:10:27.347,X:\1Second_Year\Theory of the Information\rsa-delphi\Main.pas=X:\1Second_Year\Theory of the Information\rsa-delphi\Unit1.pas</Transaction>
+    <Transaction>2023/05/03 23:10:27.347,X:\1Second_Year\Theory of the Information\rsa-delphi\Main.dfm=X:\1Second_Year\Theory of the Information\rsa-delphi\Unit1.dfm</Transaction>
+    <Transaction>2023/05/03 23:10:35.268,C:\Users\alamo\OneDrive\Documents\Embarcadero\Studio\Projects\RSADelphi.dproj=C:\Users\alamo\OneDrive\Documents\Embarcadero\Studio\Projects\Project3.dproj</Transaction>
+    <Transaction>2023/05/04 00:30:33.462,X:\1Second_Year\Theory of the Information\rsa-delphi\RSADelphi.dproj=C:\Users\alamo\OneDrive\Documents\Embarcadero\Studio\Projects\RSADelphi.dproj</Transaction>
+  </Transactions>
+</BorlandProject>
