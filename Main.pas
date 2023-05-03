@@ -4,7 +4,7 @@ Interface
 
 Uses
     Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-    Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls;
+    Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, System.IOUtils;
 
 Type
     TMainForm = class(TForm)
@@ -17,9 +17,9 @@ Type
         Edit4: TEdit;
         ResultMemo: TMemo;
         Procedure FormCreate(Sender: TObject);
-    procedure EditPChange(Sender: TObject);
-    procedure EditQChange(Sender: TObject);
-    procedure EncButtonClick(Sender: TObject);
+    Procedure EditPChange(Sender: TObject);
+    Procedure EditQChange(Sender: TObject);
+    Procedure EncButtonClick(Sender: TObject);
     Private
        { Private declarations }
     Public
@@ -32,6 +32,9 @@ Var
 Implementation
 
 {$R *.dfm}
+
+Const
+    FILENAME = 'test.txt';
 
 
 Function IsPrime(X: Integer): Boolean;
@@ -120,9 +123,29 @@ Begin
 	Result := X0;
 End;
 
+Function FileToBytes(const AName: String; var Bytes: TBytes): Boolean;
+Var
+    Stream: TFileStream;
+Begin
+    If not FileExists(AName) then
+    Begin
+        Result := False;
+        Exit;
+    End;
+    Stream := TFileStream.Create(AName, fmOpenRead);
+    Try
+        SetLength(Bytes, Stream.Size);
+        Stream.ReadBuffer(Pointer(Bytes)^, Stream.Size);
+    Finally
+         Stream.Free;
+    End;
+    Result := True;
+End;
+
 Procedure TMainForm.EncButtonClick(Sender: TObject);
 Var
     P, Q, R, Phi, Exp, D: Integer;
+    FileContents: TBytes;
 Begin
     ClearMemos(ResultMemo, InfoMemo);
     P := StrToInt(EditP.Text);
@@ -145,6 +168,9 @@ Begin
         D := Inverse(Exp, Phi);
         InfoMemo.Lines.Add('> Private Exponent: ' + IntToStr(D) + ';');
         InfoMemo.Lines.Add('> Private Key: {' + IntToStr(D) + ', ' + IntToStr(R) + '};');
+        InfoMemo.Lines.Add('> Public Key: {' + IntToStr(Exp) + ', ' + IntToStr(R) + '};');
+        FileToBytes(FILENAME, FileContents);
+        InfoMemo.Lines.Add('> File {' + FILENAME + '} opened, size ' + IntToStr(Length(FileContents)) + ' bytes;');
     End
     Else
         ShowMessage('Given numbers are not prime numbers!');
