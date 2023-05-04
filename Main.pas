@@ -311,7 +311,6 @@ Begin
         TempString := Chr(Decode(StrToInt(DecFileContent[I]), D, R));
         ResString := ResString + TempString;
     End;
-    ResultMemo.Lines.Add('Result: ');
     ResultMemo.Text := ResString;
 End;
 
@@ -329,6 +328,7 @@ Begin
     ReadLn(DecFile, DecString);
     
     InfoMemo.Lines.Add('> File {' + DECFILENAME + '} opened;');
+    InfoMemo.Lines.Add('> Decrypting...;');
     DecFileContent := SplitString(DecString, ' ');
     DecryptFile(D, R, DecFileContent, ResultMemo); 
 End;

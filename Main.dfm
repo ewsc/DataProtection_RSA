@@ -66,6 +66,7 @@ object MainForm: TMainForm
     Height = 158
     Lines.Strings = (
       'InfoMemo')
+    ReadOnly = True
     ScrollBars = ssVertical
     TabOrder = 4
   end
@@ -102,6 +103,7 @@ object MainForm: TMainForm
     Lines.Strings = (
       'Memo1')
     ParentFont = False
+    ReadOnly = True
     ScrollBars = ssVertical
     TabOrder = 7
   end
