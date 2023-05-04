@@ -251,7 +251,11 @@ Begin
         InfoMemo.Lines.Add('> Q: ' + EditQ.Text + ' is prime number;');
         R := P * Q;
         InfoMemo.Lines.Add('> R: ' + IntToStr(R) + ';');
-        
+        If R < 128 then
+        Begin
+            ShowMessage('Modulus size can''t be less than 128! Try bigger P & Q values!');
+            Exit;
+        End;
         Phi := (P - 1) * (Q - 1);
         InfoMemo.Lines.Add('> Phi: ' + IntToStr(Phi) + ';');
         Exp := GetRandExp(Phi, R);
