@@ -98,7 +98,7 @@ Begin
     Result := A;
 End;
 
-Function GetRandExp1(Phi, R: Integer) : Integer;
+Function GetRandExp(Phi, R: Integer) : Integer;
 Var
     E: Integer;
 Begin
@@ -116,7 +116,7 @@ Begin
     End;
 End;
 
-Function GetRandExp(Phi, R: Integer) : Integer;
+Function GetRandExp1(Phi, R: Integer) : Integer;
 Var
     E, I: Integer;
 Begin
@@ -188,12 +188,29 @@ Begin
     Result := Res;
 End;
 
-Function ModPow(A, B: Int64; C: Integer) : Integer;
+Function ModPow1(A, B: Int64; C: Integer) : Integer;
 Var
     Res: Int64;
 Begin
     Res := FastPower(A, B);
     Res := Res mod C;
+    Result := Res;
+End;
+
+Function ModPow(A, B: Int64; C: Integer) : Integer;
+Var
+    Res: Int64;
+Begin
+    Res := 1;
+    While (B > 0) do
+    Begin
+        If ((B Mod 2) = 1) then
+        Begin
+            Res := (Res * A) Mod C;     
+        End;
+        B := B Shr 1;
+        A := (A * A) Mod C;
+    End;
     Result := Res;
 End;
 
@@ -212,7 +229,7 @@ Var
     I: Integer;
     ResString: String;
 Begin
-    For I := 0 to Length(FileContents) do
+    For I := 0 to Length(FileContents) - 1 do
     Begin
         ResString := ResString + IntToStr(Encode(FileContents[I], Exp, R)) + ' ';
     End;
@@ -252,52 +269,47 @@ Begin
         ShowMessage('Given numbers are not prime numbers!');
 End;
 
-function SplitString(const S, Delimiters: string): TStringDynArray;
-var
-  StartIdx: Integer;
-  FoundIdx: Integer;
-  SplitPoints: Integer;
-  CurrentSplit: Integer;
-  i: Integer;
-begin
-  Result := nil;
+Function SplitString(Const S, Delimiters: String): TStringDynArray;
+Var
+    StartIdx: Integer;
+    FoundIdx: Integer;
+    SplitPoints: Integer;
+    CurrentSplit: Integer;
+    I: Integer;
+Begin
+    Result := nil;
 
-  if S <> '' then
-  begin
-    { Determine the length of the resulting array }
-    SplitPoints := 0;
-    for i := 1 to S.Length do
-      if IsDelimiter(Delimiters, S, i) then
-        Inc(SplitPoints);
-
-    SetLength(Result, SplitPoints + 1);
-
-    { Split the string and fill the resulting array }
-    StartIdx := 1;
-    CurrentSplit := 0;
-    repeat
-      FoundIdx := FindDelimiter(Delimiters, S, StartIdx);
-      if FoundIdx <> 0 then
-      begin
-        Result[CurrentSplit] := Copy(S, StartIdx, FoundIdx - StartIdx);
-        Inc(CurrentSplit);
-        StartIdx := FoundIdx + 1;
-      end;
-    until CurrentSplit = SplitPoints;
-
-    // copy the remaining part in case the string does not end in a delimiter
-    Result[SplitPoints] := Copy(S, StartIdx, S.Length - StartIdx + 1);
-  end;
-end;
+    if S <> '' then
+    Begin
+        SplitPoints := 0;
+        For i := 1 to S.Length do
+            If IsDelimiter(Delimiters, S, i) then
+                Inc(SplitPoints);
+        SetLength(Result, SplitPoints + 1);
+        StartIdx := 1;
+        CurrentSplit := 0;
+        Repeat
+            FoundIdx := FindDelimiter(Delimiters, S, StartIdx);
+            If FoundIdx <> 0 then
+            Begin
+                Result[CurrentSplit] := Copy(S, StartIdx, FoundIdx - StartIdx);
+                Inc(CurrentSplit);
+                StartIdx := FoundIdx + 1;
+            End;
+        Until CurrentSplit = SplitPoints;
+        Result[SplitPoints] := Copy(S, StartIdx, S.Length - StartIdx + 1);
+    end;
+End;
 
 Procedure DecryptFile(D, R: Integer; DecFileContent: TStringDynArray; ResultMemo: TMemo);
 Var
     I: Integer;
-    ResString: String;
+    ResString, TempString: String;
 Begin
-    For I := 0 to Length(DecFileContent) do
+    For I := 0 to Length(DecFileContent) - 1 do
     Begin
-        ResString := ResString + IntToStr(Decode(StrToInt(DecFileContent[I]), D, R)) + ' ';
+        TempString := Chr(Decode(StrToInt(DecFileContent[I]), D, R));
+        ResString := ResString + TempString;
     End;
     ResultMemo.Lines.Add('Result: ');
     ResultMemo.Text := ResString;
