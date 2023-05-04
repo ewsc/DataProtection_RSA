@@ -4,22 +4,25 @@ Interface
 
 Uses
     Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-    Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, System.IOUtils;
+    Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, System.IOUtils, System.Math, System.StrUtils;
 
 Type
     TMainForm = class(TForm)
         EditP: TEdit;
         EditQ: TEdit;
     EncButton: TButton;
-        Button2: TButton;
+    DecButton: TButton;
         InfoMemo: TMemo;
-        Edit3: TEdit;
-        Edit4: TEdit;
+    EditD: TEdit;
+    EditR: TEdit;
         ResultMemo: TMemo;
         Procedure FormCreate(Sender: TObject);
     Procedure EditPChange(Sender: TObject);
     Procedure EditQChange(Sender: TObject);
     Procedure EncButtonClick(Sender: TObject);
+    Procedure EditDChange(Sender: TObject);
+    Procedure EditRChange(Sender: TObject);
+    Procedure DecButtonClick(Sender: TObject);
     Private
        { Private declarations }
     Public
@@ -35,6 +38,10 @@ Implementation
 
 Const
     FILENAME = 'test.txt';
+    DECFILENAME = 'dec.txt';
+
+Type
+    TStringDynArray = Array of String;
 
 
 Function IsPrime(X: Integer): Boolean;
@@ -52,6 +59,11 @@ Begin
     Result := true;
 End;
 
+Procedure TMainForm.EditDChange(Sender: TObject);
+Begin
+    DecButton.Enabled := (Length(EditD.Text) > 0) And (Length(EditR.Text) > 0);
+End;
+
 Procedure TMainForm.EditPChange(Sender: TObject);
 Begin
     EncButton.Enabled := (Length(EditP.Text) > 0) And (Length(EditQ.Text) > 0);
@@ -60,6 +72,11 @@ End;
 Procedure TMainForm.EditQChange(Sender: TObject);
 Begin
     EncButton.Enabled := (Length(EditP.Text) > 0) And (Length(EditQ.Text) > 0);
+End;
+
+Procedure TMainForm.EditRChange(Sender: TObject);
+Begin
+    DecButton.Enabled := (Length(EditD.Text) > 0) And (Length(EditR.Text) > 0);
 End;
 
 Procedure ClearMemos(ResultMemo: TMemo; InfoMemo: TMemo);   
@@ -81,11 +98,11 @@ Begin
     Result := A;
 End;
 
-Function GetRandExp(Phi, R: Integer) : Integer;
+Function GetRandExp1(Phi, R: Integer) : Integer;
 Var
     E: Integer;
 Begin
-    E := 1 + Random(R);
+    E := 2 + Random(Phi - 1);
     While (True) Do
     Begin
         If GCD(E, Phi) = 1 then
@@ -96,6 +113,20 @@ Begin
         E := (E + 1) Mod R;
         If (E <= 2) then 
             E := 3;
+    End;
+End;
+
+Function GetRandExp(Phi, R: Integer) : Integer;
+Var
+    E, I: Integer;
+Begin
+    For I := 2 to R - 1 do 
+    Begin
+        If GCD(I, Phi) = 1 then
+        Begin
+            Result := I;
+            Break;
+        End;
     End;
 End;
 
@@ -142,6 +173,53 @@ Begin
     Result := True;
 End;
 
+Function FastPower(Value, Pow: Int64) : Int64;
+Var
+    Res: Int64;
+Begin
+    Res := 1;
+    While (Pow > 0) do
+    Begin
+        If (Pow Mod 2) = 1 then
+            Res := Res * Value;
+        Value := Value * Value;
+        Pow := Pow Div 2;
+    End;
+    Result := Res;
+End;
+
+Function ModPow(A, B: Int64; C: Integer) : Integer;
+Var
+    Res: Int64;
+Begin
+    Res := FastPower(A, B);
+    Res := Res mod C;
+    Result := Res;
+End;
+
+Function Encode(X, E, N: Integer) : Integer;
+Begin
+    Result := ModPow(X, E, N);
+End;
+
+Function Decode(X, D, N: Integer) : Integer;
+Begin
+    Result := ModPow(X, D, N);
+End;
+
+Procedure EncodeFile(Exp, R: Integer; FileContents: TBytes; ResultMemo: TMemo);
+Var
+    I: Integer;
+    ResString: String;
+Begin
+    For I := 0 to Length(FileContents) do
+    Begin
+        ResString := ResString + IntToStr(Encode(FileContents[I], Exp, R)) + ' ';
+    End;
+    ResultMemo.Lines.Add('Result: ');
+    ResultMemo.Text := ResString;
+End;
+
 Procedure TMainForm.EncButtonClick(Sender: TObject);
 Var
     P, Q, R, Phi, Exp, D: Integer;
@@ -156,12 +234,8 @@ Begin
         InfoMemo.Lines.Add('> Q: ' + EditQ.Text + ' is prime number;');
         R := P * Q;
         InfoMemo.Lines.Add('> R: ' + IntToStr(R) + ';');
-        If R < 128 then
-        Begin
-            ShowMessage('Modulus is less than 128, cannot encode single bytes. Input another prime numbers.');
-            Exit;
-        End;
-        Phi := (P - 1) * (P - 1);
+        
+        Phi := (P - 1) * (Q - 1);
         InfoMemo.Lines.Add('> Phi: ' + IntToStr(Phi) + ';');
         Exp := GetRandExp(Phi, R);
         InfoMemo.Lines.Add('> Exp: ' + IntToStr(Exp) + ';');
@@ -171,9 +245,80 @@ Begin
         InfoMemo.Lines.Add('> Public Key: {' + IntToStr(Exp) + ', ' + IntToStr(R) + '};');
         FileToBytes(FILENAME, FileContents);
         InfoMemo.Lines.Add('> File {' + FILENAME + '} opened, size ' + IntToStr(Length(FileContents)) + ' bytes;');
+        InfoMemo.Lines.Add('> Encoding... ');
+        EncodeFile(Exp, R, FileContents, ResultMemo);
     End
     Else
         ShowMessage('Given numbers are not prime numbers!');
+End;
+
+function SplitString(const S, Delimiters: string): TStringDynArray;
+var
+  StartIdx: Integer;
+  FoundIdx: Integer;
+  SplitPoints: Integer;
+  CurrentSplit: Integer;
+  i: Integer;
+begin
+  Result := nil;
+
+  if S <> '' then
+  begin
+    { Determine the length of the resulting array }
+    SplitPoints := 0;
+    for i := 1 to S.Length do
+      if IsDelimiter(Delimiters, S, i) then
+        Inc(SplitPoints);
+
+    SetLength(Result, SplitPoints + 1);
+
+    { Split the string and fill the resulting array }
+    StartIdx := 1;
+    CurrentSplit := 0;
+    repeat
+      FoundIdx := FindDelimiter(Delimiters, S, StartIdx);
+      if FoundIdx <> 0 then
+      begin
+        Result[CurrentSplit] := Copy(S, StartIdx, FoundIdx - StartIdx);
+        Inc(CurrentSplit);
+        StartIdx := FoundIdx + 1;
+      end;
+    until CurrentSplit = SplitPoints;
+
+    // copy the remaining part in case the string does not end in a delimiter
+    Result[SplitPoints] := Copy(S, StartIdx, S.Length - StartIdx + 1);
+  end;
+end;
+
+Procedure DecryptFile(D, R: Integer; DecFileContent: TStringDynArray; ResultMemo: TMemo);
+Var
+    I: Integer;
+    ResString: String;
+Begin
+    For I := 0 to Length(DecFileContent) do
+    Begin
+        ResString := ResString + IntToStr(Decode(StrToInt(DecFileContent[I]), D, R)) + ' ';
+    End;
+    ResultMemo.Lines.Add('Result: ');
+    ResultMemo.Text := ResString;
+End;
+
+Procedure TMainForm.DecButtonClick(Sender: TObject);
+Var
+    R, D: Integer;
+    DecFile: TextFile;
+    DecString: String;
+    DecFileContent: TStringDynArray;
+Begin
+    R := StrToInt(EditR.Text);
+    D := StrToInt(EditD.Text);
+    AssignFile(DecFile, DECFILENAME);
+    Reset(DecFile);
+    ReadLn(DecFile, DecString);
+    
+    InfoMemo.Lines.Add('> File {' + DECFILENAME + '} opened;');
+    DecFileContent := SplitString(DecString, ' ');
+    DecryptFile(D, R, DecFileContent, ResultMemo); 
 End;
 
 Procedure TMainForm.FormCreate(Sender: TObject);

@@ -3,8 +3,8 @@ object MainForm: TMainForm
   Top = 0
   AutoSize = True
   Caption = 'RSA E\D'
-  ClientHeight = 384
-  ClientWidth = 494
+  ClientHeight = 378
+  ClientWidth = 491
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -49,13 +49,15 @@ object MainForm: TMainForm
     TabOrder = 2
     OnClick = EncButtonClick
   end
-  object Button2: TButton
+  object DecButton: TButton
     Left = 141
     Top = 115
     Width = 75
     Height = 25
     Caption = 'Decrypt'
+    Enabled = False
     TabOrder = 3
+    OnClick = DecButtonClick
   end
   object InfoMemo: TMemo
     Left = 237
@@ -67,29 +69,39 @@ object MainForm: TMainForm
     ScrollBars = ssVertical
     TabOrder = 4
   end
-  object Edit3: TEdit
+  object EditD: TEdit
     Left = 5
     Top = 117
     Width = 121
     Height = 21
+    NumbersOnly = True
     TabOrder = 5
-    Text = 'Edit1'
+    TextHint = 'Input D'
+    OnChange = EditDChange
   end
-  object Edit4: TEdit
+  object EditR: TEdit
     Left = 5
     Top = 144
     Width = 121
     Height = 21
+    NumbersOnly = True
     TabOrder = 6
-    Text = 'Edit1'
+    TextHint = 'Input R'
+    OnChange = EditRChange
   end
   object ResultMemo: TMemo
-    Left = 8
-    Top = 188
+    Left = 5
+    Top = 182
     Width = 481
     Height = 191
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -11
+    Font.Name = 'Consolas'
+    Font.Style = []
     Lines.Strings = (
       'Memo1')
+    ParentFont = False
     ScrollBars = ssVertical
     TabOrder = 7
   end
